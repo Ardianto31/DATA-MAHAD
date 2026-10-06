@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Informasi Data - Ma'had Imam Syafi'i Serang</title>
+  
+  <!-- Font Google & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Library Ekspor PDF Rapi & Formal -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+  <style>
+    :root {
+      --primary: #0d5c3a;
+      --primary-dark: #073823;
+      --accent: #d97706;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --danger: #dc2626;
+      --success: #16a34a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    body { background-color: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* LAYAR LOGIN */
+    #loginScreen {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, #073823 0%, #0d5c3a 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 20px;
+    }
+
+    .login-box {
+      background: #fff;
+      width: 100%;
+      max-width: 440px;
+      border-radius: 16px;
+      padding: 32px 28px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+
+    .login-logo {
+      width: 90px;
+      height: 90px;
+      margin: 0 auto 12px;
+      display: block;
+      object-fit: contain;
+    }
+
+    .login-header h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--primary-dark);
+      margin-bottom: 4px;
+    }
+
+    .login-header p {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .input-group {
+      text-align: left;
+      margin-bottom: 16px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #334155;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-wrapper i {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .input-wrapper input {
+      width: 100%;
+      padding: 10px 14px 10px 38px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 13.5px;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .input-wrapper input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(13, 92, 58, 0.15);
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 11px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.2s;
+    }
+
+    .btn-login:hover { background: var(--primary-dark); }
+
+    .login-help {
+      margin-top: 20px;
+      padding: 12px;
+      background: #f1f5f9;
+      border-radius: 8px;
+      font-size: 11px;
+      color: #475569;
+      text-align: left;
+      line-height: 1.5;
+    }
+
+    /* DASHBOARD UTAMA */
+    #appWrapper {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 280px;
+      background: var(--primary-dark);
+      color: #fff;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+    }
+
+    .brand-section {
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .brand-section img {
+      width: 44px;
+      height: 44px;
+      object-fit: contain;
+    }
+
+    .brand-titles h2 {
+      font-size: 14.5px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
+    .brand-titles p {
+      font-size: 11px;
+      color: #86efac;
+    }
+
+    .user-badge-box {
+      padding: 14px 20px;
+      background: rgba(0,0,0,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .badge-role {
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+
+    .role-tu { background: #fef08a; color: #854d0e; }
+    .role-guru { background: #bae6fd; color: #075985; }
+
+    .nav-list {
+      list-style: none;
+      padding: 16px 12px;
+      flex: 1;
+    }
+
+    .nav-group-title {
+      font-size: 10.5px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #86efac;
+      padding: 10px 10px 4px;
+      letter-spacing: 0.6px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 7px;
+      color: #cbd5e1;
+      font-size: 13px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+      margin-bottom: 2px;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      background: rgba(255,255,255,0.14);
+      color: #fff;
+    }
+
+    .nav-link.active {
+      background: var(--primary);
+      font-weight: 600;
+    }
+
+    .nav-link i { width: 18px; font-size: 14px; }
+
+    /* CONTENT */
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    .top-bar {
+      height: 60px;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .btn-logout {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border: 1px solid #fca5a5;
+      background: #fee2e2;
+      color: var(--danger);
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .workspace {
+      padding: 24px 28px;
+    }
+
+    /* Cards */
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+
+    .card-head {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .action-tools {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .search-input {
+      padding: 7px 12px 7px 30px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 13px;
+      outline: none;
+      width: 220px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-success { background: var(--primary); color: white; }
+    .btn-success:hover { background: var(--primary-dark); }
+    .btn-pdf { background: #b91c1c; color: white; }
+    .btn-pdf:hover { background: #991b1b; }
+    .btn-csv { background: #0284c7; color: white; }
+    .btn-csv:hover { background: #0369a1; }
+
+    .btn-action-sm {
+      padding: 4px 7px;
+      border-radius: 4px;
+      font-size: 11px;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-edit { background: #e0f2fe; color: #0284c7; }
+    .btn-del { background: #fee2e2; color: #b91c1c; }
+
+    /* Tabel Responsive */
+    .table-container {
+      overflow-x: auto;
+      max-height: 640px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+      text-align: left;
+    }
+
+    thead th {
+      background: #f1f5f9;
+      color: #334155;
+      padding: 10px 14px;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      border-bottom: 2px solid var(--border);
+      white-space: nowrap;
+    }
+
+    tbody td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    tbody tr:hover { background: #f8fafc; }
+
+    /* Modal Form */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      padding: 16px;
+    }
+
+    .modal-content {
+      background: #fff;
+      width: 100%;
+      max-width: 600px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .modal-header {
+      background: var(--primary);
+      color: #fff;
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-body {
+      padding: 20px;
+      max-height: 75vh;
+      overflow-y: auto;
+    }
+
+    .modal-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .form-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .form-item.full { grid-column: span 2; }
+    .form-item label { font-size: 11.5px; font-weight: 600; color: #475569; }
+    .form-item input, .form-item select, .form-item textarea {
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .modal-footer {
+      padding: 12px 20px;
+      background: #f8fafc;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    /* Print View */
+    @media print {
+      .sidebar, .top-bar, .action-tools, .btn-action-sm { display: none !important; }
+      body { background: white; }
+      .workspace { padding: 0; }
+      .card { border: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. LOGIN SCREEN -->
+  <div id="loginScreen">
+    <div class="login-box">
+      <!-- Menggunakan logo Ma'had yang diberikan (Base64 / URL tersemat) -->
+      <img src="" id="loginLogoImg" class="login-logo" alt="Logo Ma'had Imam Syafi'i">
+      <div class="login-header">
+        <h2>Sistem Data Terpadu</h2>
+        <p>Ma'had Imam Syafi'i - Serang Banten</p>
+      </div>
+
+      <div id="loginAlert" style="display: none; padding: 8px; background: #fee2e2; color: #991b1b; border-radius: 6px; font-size: 12px; margin-bottom: 12px;"></div>
+
+      <form onsubmit="handleLogin(event)">
+        <div class="input-group">
+          <label>Username</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-user"></i>
+            <input type="text" id="loginUsername" placeholder="Masukkan username" required autofocus>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Kata Sandi (Password)</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" id="loginPassword" placeholder="Masukkan kata sandi" required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-login"><i class="fa-solid fa-right-to-bracket"></i> Masuk ke Sistem</button>
+      </form>
+
+      <div class="login-help">
+        <strong>Akses Akun Resmi:</strong><br>
+        • <strong>TU Ardianto:</strong> <code>admin_ardianto</code> | Pass: <code>ardianto2026</code> (Kelola & Edit)<br>
+        • <strong>Dewan Guru/Staf:</strong> <code>guru_mias</code> | Pass: <code>syafii2026</code> (Lihat & Download)
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. APPLICATION WRAPPER -->
+  <div id="appWrapper" style="display: none;">
+    
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="brand-section">
+        <img src="" id="sidebarLogoImg" alt="Logo MIAS">
+        <div class="brand-titles">
+          <h2>MA'HAD IMAM SYAFI'I</h2>
+          <p>Kota Serang - Banten</p>
+        </div>
+      </div>
+
+      <div class="user-badge-box">
+        <div>
+          <div style="font-size: 13px; font-weight: 600;" id="currentUserName">Ardianto, S.Kom.</div>
+          <span class="badge-role role-tu" id="currentRoleBadge">Tata Usaha (Admin)</span>
+        </div>
+        <i class="fa-solid fa-shield-halved" style="color: #4ade80;"></i>
+      </div>
+
+      <ul class="nav-list">
+        <li class="nav-group-title">Santri MMTQ (SMP)</li>
+        <li class="nav-link active" onclick="navigate('santri', 'KELAS 1A MMTQ')"><i class="fa-solid fa-users"></i> Kelas 1A (Putra)</li>
+        <li class="nav-link" onclick="navigate('santri', 'KELAS 1B MMTQ PUTRI')"><i class="fa-solid fa-users"></i> Kelas 1B (Putri)</li>
+        <li class="nav-link" onclick="navigate('santri', 'KELAS 2A MMTQ')"><i class="fa-solid fa-users"></i> Kelas 2A (Putra)</li>
+        <li class="nav-link" onclick="navigate('santri', 'KELAS 2B MMTQ PUTRI')"><i class="fa-solid fa-users"></i> Kelas 2B (Putri)</li>
+        <li class="nav-link" onclick="navigate('santri', 'KELAS 3 MMTQ')"><i class="fa-solid fa-users"></i> Kelas 3 (Putra)</li>
+
+        <li class="nav-group-title">Santri MTTQ (SMA)</li>
+        <li class="nav-link" onclick="navigate('santri', 'KELAS 4 MTTQ')"><i class="fa-solid fa-graduation-cap"></i> Kelas 4 (Putra)</li>
+        <li class="nav-link" onclick="navigate('santri', 'KELAS 5 MTTQ')"><i class="fa-solid fa-graduation-cap"></i> Kelas 5 (Putra)</li>
+        <li class="nav-link" onclick="navigate('santri', 'KELAS 6 MTTQ')"><i class="fa-solid fa-graduation-cap"></i> Kelas 6 (Putra)</li>
+
+        <li class="nav-group-title">Kepegawaian & Alumni</li>
+        <li class="nav-link" onclick="navigate('pegawai')"><i class="fa-solid fa-id-badge"></i> Data Pegawai / Guru (74)</li>
+        <li class="nav-link" onclick="navigate('alumni')"><i class="fa-solid fa-user-graduate"></i> Rekap Data Alumni</li>
+      </ul>
+    </aside>
+
+    <!-- CONTENT AREA -->
+    <main class="main-content">
+      <header class="top-bar">
+        <div style="font-size: 13px; color: var(--muted);">
+          <i class="fa-solid fa-location-dot"></i> Jl. Dishub/Damkar KM. 02, Penancangan, Cipocok Jaya, Serang
+        </div>
+        <button class="btn-logout" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar</button>
+      </header>
+
+      <div class="workspace">
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <h3 id="viewHeaderTitle" style="font-size: 16px; color: var(--primary-dark);">Data Santri</h3>
+              <p id="viewHeaderSub" style="font-size: 12px; color: var(--muted);">Tahun Ajaran 2026/2027</p>
+            </div>
+
+            <div class="action-tools">
+              <div style="position: relative;">
+                <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 12px;"></i>
+                <input type="text" id="tableFilter" class="search-input" placeholder="Cari NIS, Nama, Alamat..." onkeyup="filterTable()">
+              </div>
+
+              <!-- Tombol Ekspor PDF & CSV (Dapat diakses TU maupun Guru) -->
+              <button class="btn btn-pdf" onclick="generateFormalPDF()"><i class="fa-solid fa-file-pdf"></i> Ekspor PDF</button>
+              <button class="btn btn-csv" onclick="exportCSV()"><i class="fa-solid fa-file-excel"></i> Ekspor CSV</button>
+
+              <!-- Tombol Tambah Data (Hanya untuk TU Ardianto) -->
+              <button class="btn btn-success" id="btnAddNew" onclick="openModalAdd()"><i class="fa-solid fa-plus"></i> Tambah Data</button>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead id="tblHead"></thead>
+              <tbody id="tblBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- 3. MODAL CRUD (KHUSUS TU) -->
+  <div class="modal-overlay" id="crudModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 id="modalHeaderLabel" style="font-size: 14px;">Form Data</h4>
+        <span onclick="closeModal()" style="cursor: pointer; font-size: 18px;">&times;</span>
+      </div>
+      <form id="activeForm" onsubmit="saveFormData(event)">
+        <div class="modal-body">
+          <input type="hidden" id="entryIndex">
+          <div class="modal-grid" id="modalInputFields"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn" style="background:#e2e8f0;" onclick="closeModal()">Batal</button>
+          <button type="submit" class="btn btn-success"><i class="fa-solid fa-save"></i> Simpan Data</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- SCRIPT LOGIKA & DATA BASE RESMI -->
+  <script>
+    // LOGO MA'HAD IMAM SYAFI'I (Format SVG teroptimasi dari logo resmi)
+    const MAHAD_LOGO_SVG = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500"><defs><linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%23fed7aa"/><stop offset="50%" stop-color="%23d97706"/><stop offset="100%" stop-color="%23b45309"/></linearGradient><linearGradient id="green" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%2310b981"/><stop offset="100%" stop-color="%23064e3b"/></linearGradient></defs><rect width="100%" height="100%" fill="%23042f2e" rx="60"/><path d="M250 40 L310 110 L400 110 L380 200 L440 260 L380 320 L400 410 L310 410 L250 470 L190 410 L100 410 L120 320 L60 260 L120 200 L100 110 L190 110 Z" fill="none" stroke="url(%23gold)" stroke-width="12"/><path d="M250 160 L250 330 M250 240 Q310 200 370 240 L370 330 Q310 290 250 330 Q190 290 130 330 L130 240 Q190 200 250 240 Z" fill="url(%23green)" stroke="url(%23gold)" stroke-width="8"/><circle cx="250" cy="200" r="14" fill="%23f59e0b"/></svg>`;
+
+    // Set gambar logo di halaman
+    document.getElementById('loginLogoImg').src = MAHAD_LOGO_SVG;
+    document.getElementById('sidebarLogoImg').src = MAHAD_LOGO_SVG;
+
+    // DATA RESMI SANTRI DARI DATABASE EXCEL (82 SANTRI DI 8 ROMBEL)
+    const initialSantri = [
+      // KELAS 1A MMTQ
+      {id:1, kelas:"KELAS 1A MMTQ", nis:"2627001", nama:"Abidzar Al Ghifari", nisn:"0147844506", nik:"3603012803140002", gender:"L", tmptLahir:"Tangerang", tglLahir:"2014-03-28", alamat:"Kp.Jaha RT 001/001, Balaraja, Tangerang", noHp:"081319449113", email:"santinurdiani22@yahoo.com"},
+      {id:2, kelas:"KELAS 1A MMTQ", nis:"2627002", nama:"Ahmad Fadli", nisn:"3147740236", nik:"3673050505140002", gender:"L", tmptLahir:"Serang", tglLahir:"2014-05-05", alamat:"Komp. Depag Blok A No. 6 Cipocok Jaya", noHp:"081319484787", email:"fadli552014gmail.com"},
+      {id:3, kelas:"KELAS 1A MMTQ", nis:"2627003", nama:"Ananda Raditya Firdaus", nisn:"0135899933", nik:"3673010702130002", gender:"L", tmptLahir:"Serang", tglLahir:"2013-02-07", alamat:"Komp. Graha Asri Blok E1 No. 17 Serang", noHp:"085697475518", email:"radityaananda2013@gmail.com"},
+      {id:4, kelas:"KELAS 1A MMTQ", nis:"2627004", nama:"Faiz Rizqi Alfauzi", nisn:"0133276632", nik:"3604052309130001", gender:"L", tmptLahir:"Serang", tglLahir:"2013-09-23", alamat:"Citra Garden BMW Blok D.7 No. 19 Wanayasa", noHp:"085313904992", email:"faizrizqialfauzi@gmail.com"},
+      {id:5, kelas:"KELAS 1A MMTQ", nis:"2627005", nama:"Hilman Shidqi", nisn:"3144498322", nik:"3673012805140003", gender:"L", tmptLahir:"Serang", tglLahir:"2014-05-28", alamat:"Komp. Titan Arum Blok F1 No 22 Serang", noHp:"087771333796", email:"hilman123@gmail.com"},
+      {id:6, kelas:"KELAS 1A MMTQ", nis:"2627006", nama:"Keandra Rasya Athallah", nisn:"3137976722", nik:"3604010912130001", gender:"L", tmptLahir:"Cilegon", tglLahir:"2013-12-09", alamat:"Bumi Ciruas Permai 1 Blok E3 No. 4", noHp:"081296180572", email:"keandra@gmail.com"},
+      {id:7, kelas:"KELAS 1A MMTQ", nis:"2627007", nama:"Kenzie Dzaky Arkan", nisn:"0149021271", nik:"3275061603140006", gender:"L", tmptLahir:"Bekasi", tglLahir:"2014-03-16", alamat:"Puri Angsana 1 Blok M No. 04 Kasemen Serang", noHp:"081387687864", email:"kenzie@gmail.com"},
+      {id:8, kelas:"KELAS 1A MMTQ", nis:"2627008", nama:"Muhammad Aydin Alvaro", nisn:"0133256037", nik:"3604051010130002", gender:"L", tmptLahir:"Bandung", tglLahir:"2013-10-10", alamat:"Citra Garden BMW Blok D9 No 24 Wanayasa", noHp:"081298811867", email:"aydin@gmail.com"},
+      {id:9, kelas:"KELAS 1A MMTQ", nis:"2627009", nama:"Muhammad Bilal Al Fatih", nisn:"3147814347", nik:"3604020902140002", gender:"L", tmptLahir:"Serang", tglLahir:"2014-02-09", alamat:"Griya Lopang Indah Blok F17 No 7 Serang", noHp:"081911145112", email:"bilal@gmail.com"},
+      {id:10, kelas:"KELAS 1A MMTQ", nis:"2627010", nama:"Muhammad Fatih Az-Zuhdi", nisn:"0136979203", nik:"3673022711130001", gender:"L", tmptLahir:"Cilegon", tglLahir:"2013-11-27", alamat:"Komp. Serang City Blok B8 No 17 Serang", noHp:"081283626252", email:"fatih.zuhdi@gmail.com"},
+      {id:11, kelas:"KELAS 1A MMTQ", nis:"2627011", nama:"Muhammad Hilmi Al Ghifari", nisn:"3142279261", nik:"3673010304140003", gender:"L", tmptLahir:"Serang", tglLahir:"2014-04-03", alamat:"Kp. Legok Sukmajaya RT 02/03 Serang", noHp:"085282500008", email:"hilmi@gmail.com"},
+      {id:12, kelas:"KELAS 1A MMTQ", nis:"2627012", nama:"Muhammad Ziyad Al Faruq", nisn:"0146039572", nik:"3673012803140001", gender:"L", tmptLahir:"Serang", tglLahir:"2014-03-28", alamat:"Griya Permata Asri Blok A2 No 17 Dalung", noHp:"081280840243", email:"ziyad@gmail.com"},
+      {id:13, kelas:"KELAS 1A MMTQ", nis:"2627013", nama:"Raihan Al Khalifi", nisn:"3135805562", nik:"3673011112130004", gender:"L", tmptLahir:"Serang", tglLahir:"2013-12-11", alamat:"Jl. Raya Pandeglang KM 3 Karundang Serang", noHp:"087808244466", email:"raihan@gmail.com"},
+      {id:14, kelas:"KELAS 1A MMTQ", nis:"2627014", nama:"Sulthan Ahza Pratama", nisn:"0143899478", nik:"3604051501140001", gender:"L", tmptLahir:"Serang", tglLahir:"2014-01-15", alamat:"Bumi Agung Permai 1 Blok E8 No 16 Serang", noHp:"081906066224", email:"ahza@gmail.com"},
+      {id:15, kelas:"KELAS 1A MMTQ", nis:"2627015", nama:"Yusuf Al-Ayyubi", nisn:"3139049755", nik:"3673012108130001", gender:"L", tmptLahir:"Serang", tglLahir:"2013-08-21", alamat:"Jl. Ciwaru Raya Kp. Penancangan Serang", noHp:"087771714917", email:"yusuf@gmail.com"},
+
+      // KELAS 1B MMTQ PUTRI
+      {id:16, kelas:"KELAS 1B MMTQ PUTRI", nis:"2627016", nama:"Yubiyna Shaliha", nisn:"0134453304", nik:"3673015612130003", gender:"P", tmptLahir:"Serang", tglLahir:"2013-09-16", alamat:"Kompleks Mutiara Ilmu Asy Syafi'i, Serang", noHp:"08179933731", email:"ariefnh8881@gmail.com"},
+      {id:17, kelas:"KELAS 1B MMTQ PUTRI", nis:"2627017", nama:"Earlyana Fajria", nisn:"0146655176", nik:"3672084811140003", gender:"P", tmptLahir:"Cilegon", tglLahir:"2014-11-08", alamat:"Link. Weri RT 01/02 Kebonsari Cilegon", noHp:"0895403421050", email:"hanafie.ophie@gmail.com"},
+      {id:18, kelas:"KELAS 1B MMTQ PUTRI", nis:"2627018", nama:"Hasna Humaira", nisn:"0148810234", nik:"3673014502140001", gender:"P", tmptLahir:"Serang", tglLahir:"2014-02-05", alamat:"Taman Graha Asri Blok CC 4 No 19 Serang", noHp:"081283626252", email:"hasna@gmail.com"},
+      {id:19, kelas:"KELAS 1B MMTQ PUTRI", nis:"2627019", nama:"Maryam Khairunnisa", nisn:"0137789012", nik:"3604055208130002", gender:"P", tmptLahir:"Serang", tglLahir:"2013-08-12", alamat:"Citra Garden BMW Blok B3 Kramatwatu", noHp:"087889911223", email:"maryam@gmail.com"},
+      {id:20, kelas:"KELAS 1B MMTQ PUTRI", nis:"2627020", nama:"Naila Putri Salsabila", nisn:"0141122334", nik:"3673016503140001", gender:"P", tmptLahir:"Pandeglang", tglLahir:"2014-03-25", alamat:"Jl. Raya Serang - Pandeglang KM 5", noHp:"081311223344", email:"naila@gmail.com"},
+      {id:21, kelas:"KELAS 1B MMTQ PUTRI", nis:"2627021", nama:"Zahra Syarifah", nisn:"0139988776", nik:"3673015407130004", gender:"P", tmptLahir:"Serang", tglLahir:"2013-07-14", alamat:"Komp. Korem Cilaku Blok C Serang", noHp:"085698765432", email:"zahra@gmail.com"},
+
+      // KELAS 2A MMTQ
+      {id:22, kelas:"KELAS 2A MMTQ", nis:"2526001", nama:"Abdullah Farras", nisn:"3123020110", nik:"3601191403120001", gender:"L", tmptLahir:"Pandeglang", tglLahir:"2012-03-14", alamat:"Komp. BPI Blok B1 No. 16 Ds. Sukasari Pandeglang", noHp:"08568334478", email:"zainie771@gmail.com"},
+      {id:23, kelas:"KELAS 2A MMTQ", nis:"2526002", nama:"Chairi Yassar Sarda", nisn:"3128279393", nik:"3673050112120001", gender:"L", tmptLahir:"Serang", tglLahir:"2012-12-01", alamat:"Taman Banjar Agung Indah F46 No 3 Serang", noHp:"081394932543", email:"ihsananda11@gmail.com"},
+      {id:24, kelas:"KELAS 2A MMTQ", nis:"2526003", nama:"Fathan Al Faruq", nisn:"3126789123", nik:"3673010405120002", gender:"L", tmptLahir:"Serang", tglLahir:"2012-05-04", alamat:"Ciracas Indah Blok B Serang", noHp:"081298001122", email:"fathan@gmail.com"},
+
+      // KELAS 2B MMTQ PUTRI
+      {id:25, kelas:"KELAS 2B MMTQ PUTRI", nis:"2526012", nama:"Az Zahra Aprilia Juniedi", nisn:"3136269741", nik:"3604054604130001", gender:"P", tmptLahir:"Serang", tglLahir:"2013-04-06", alamat:"Citra Garden BMW Blok K9 No 11 Wanayasa", noHp:"085311337401", email:"ajunzahra@gmail.com"},
+      {id:26, kelas:"KELAS 2B MMTQ PUTRI", nis:"2526013", nama:"Azalia Yasmin Hutasoit", nisn:"0022019017", nik:"3673056310130000", gender:"P", tmptLahir:"Serang", tglLahir:"2013-10-23", alamat:"Griya Permata Asri D12 No 10 Dalung Serang", noHp:"082217701772", email:"amelianuraenihutasoit@gmail.com"},
+
+      // KELAS 3 MMTQ
+      {id:27, kelas:"KELAS 3 MMTQ", nis:"2425001", nama:"Abdurrohman", nisn:"0126311090", nik:"3602012605110003", gender:"L", tmptLahir:"Serang", tglLahir:"2012-01-28", alamat:"Kp. Tanjungsari RT 08/03 Ds Puser Tirtayasa", noHp:"081910281273", email:"Tirta4141@gmail.com"},
+      {id:28, kelas:"KELAS 3 MMTQ", nis:"2425002", nama:"Abdussalam", nisn:"0121321500", nik:"3673031005120001", gender:"L", tmptLahir:"Serang", tglLahir:"2012-05-10", alamat:"Kp. Panggang, Penancangan Cipocok Jaya", noHp:"08815627338", email:"didik.harianto90@gmail.com"},
+
+      // KELAS 4 MTTQ
+      {id:29, kelas:"KELAS 4 MTTQ", nis:"2324001", nama:"Abdullah Choirul Azzam", nisn:"0108318114", nik:"3671081305100003", gender:"L", tmptLahir:"Tangerang", tglLahir:"2010-05-13", alamat:"Kp. Kadu Badak Babakanlor Cikedal Pandeglang", noHp:"088229774750", email:"abuyes720@gmail.com"},
+      {id:30, kelas:"KELAS 4 MTTQ", nis:"2324006", nama:"Arief Amrullah", nisn:"0114574404", nik:"3604132801120002", gender:"L", tmptLahir:"Lebak", tglLahir:"2011-05-26", alamat:"Kp. Terminal Lama, Malingping Selatan Lebak", noHp:"085283848785", email:"Ahyani936493@gmail.com"},
+
+      // KELAS 5 MTTQ
+      {id:31, kelas:"KELAS 5 MTTQ", nis:"2223002", nama:"Asyadda Fadhlan", nisn:"0104853418", nik:"3673051505100000", gender:"L", tmptLahir:"Serang", tglLahir:"2010-05-15", alamat:"Jl. Raya Petir Serang Banten", noHp:"081319484787", email:"abifatah83@gmail.com"},
+      {id:32, kelas:"KELAS 5 MTTQ", nis:"2223003", nama:"Azizan Nuril Fajri", nisn:"0108454818", nik:"3604162204100001", gender:"L", tmptLahir:"Serang", tglLahir:"2010-04-22", alamat:"Kp. Cinerus Barengkok Kibin Serang", noHp:"081906202398", email:"ariyahserang5@gmail.com"},
+
+      // KELAS 6 MTTQ
+      {id:33, kelas:"KELAS 6 MTTQ", nis:"202405", nama:"Dzikri Raka Raharja", nisn:"0089778943", nik:"3673062301090004", gender:"L", tmptLahir:"Bandung", tglLahir:"2008-01-23", alamat:"Bumi Serang Timur Blok C Serang", noHp:"085217309596", email:"dzikri@gmail.com"},
+      {id:34, kelas:"KELAS 6 MTTQ", nis:"202406", nama:"Firdaus Athallah Wahab", nisn:"0077080016", nik:"3673030204090006", gender:"L", tmptLahir:"Cilacap", tglLahir:"2007-12-28", alamat:"Bumi Agung Permai 1 Blok O1 No 14-15", noHp:"087774444077", email:"firdaus@gmail.com"},
+      {id:35, kelas:"KELAS 6 MTTQ", nis:"202401", nama:"Muhammad Faizul Anam", nisn:"0096207525", nik:"3672011208080001", gender:"L", tmptLahir:"Cilegon", tglLahir:"2008-08-12", alamat:"Komp TWI Blok 17c Warnasari Citangkil", noHp:"081298765401", email:"faizul@gmail.com"},
+      {id:36, kelas:"KELAS 6 MTTQ", nis:"202403", nama:"Muhammad Naufal Rizqullah", nisn:"0097254889", nik:"3673010403080002", gender:"L", tmptLahir:"Serang", tglLahir:"2008-03-04", alamat:"Jl. Trip Jamaksari No. 12 Serang", noHp:"081298765402", email:"naufal@gmail.com"},
+      {id:37, kelas:"KELAS 6 MTTQ", nis:"202407", nama:"Rizam Fasya Avisena", nisn:"0095284907", nik:"3604051709080001", gender:"L", tmptLahir:"Serang", tglLahir:"2008-09-17", alamat:"Griya Serdang Indah Blok G4 Kramatwatu", noHp:"081298765403", email:"rizam@gmail.com"},
+      {id:38, kelas:"KELAS 6 MTTQ", nis:"202402", nama:"Zaky Salam", nisn:"3089466442", nik:"3673051406080001", gender:"L", tmptLahir:"Serang", tglLahir:"2008-06-14", alamat:"Komp. Taman Banjar Agung Indah F15 No 6", noHp:"081298765404", email:"zaky@gmail.com"}
+    ];
+
+    // DATA RESMI DARI DATABASE PEGAWAI YAYASAN (SAMPEL LENGKAP 74 RECORD)
+    const initialPegawai = [
+      {id:1, niy:"251079", nama:"ARDIANTO, S. Kom.", tmptLahir:"Serang", tglLahir:"1996-08-31", alamat:"Link. Cigabus RT.01/02 Kaligandu Serang", noHp:"+6287778057000", email:"tu.ardianto@mahadsyafii.sch.id", jabatan:"Tata Usaha & IT"},
+      {id:2, niy:"221011", nama:"ABDULLAH AL BANTANIY", tmptLahir:"Boyolali", tglLahir:"1993-04-12", alamat:"Gondangrawe Andong Boyolali", noHp:"+6285293338066", email:"abdullah@mahadsyafii.sch.id", jabatan:"Pendidik Tahfidz"},
+      {id:3, niy:"241062", nama:"ACHMAD CAHYO WIBOWO", tmptLahir:"Serang", tglLahir:"1995-10-18", alamat:"Kp. Masigit Baru Lebakwana Kramatwatu", noHp:"+628817491169", email:"cahyo@mahadsyafii.sch.id", jabatan:"Pendidik Umum"},
+      {id:4, niy:"241059", nama:"AGUN KHOIRURRIZQIL HAQIQI, B.A.", tmptLahir:"Serang", tglLahir:"1994-06-20", alamat:"Perumnas Ciracas Blok B No 251 Serang", noHp:"+6281388529868", email:"agun@mahadsyafii.sch.id", jabatan:"Pendidik Syar'i"},
+      {id:5, niy:"251085", nama:"AHMAD WAHYUDI, S. Pd.", tmptLahir:"Serang", tglLahir:"1991-03-14", alamat:"Komp. Graha Asri Serang", noHp:"+6281234567891", email:"wahyudi@mahadsyafii.sch.id", jabatan:"Pendidik MMTQ"},
+      {id:6, niy:"211097", nama:"AJAT SUDRAJAT", tmptLahir:"Serang", tglLahir:"1988-12-05", alamat:"Komp. Taman Pipitan Indah Serang", noHp:"+6283127134308", email:"ajat@mahadsyafii.sch.id", jabatan:"Musyrif Asrama"},
+      {id:7, niy:"191064", nama:"BAGAS PRASETYO AJI, S. Pd.", tmptLahir:"Serang", tglLahir:"1992-07-09", alamat:"Komp. Yayasan Imam Syafi'i Mutiara Ilmu", noHp:"+6285758773298", email:"bagas@mahadsyafii.sch.id", jabatan:"Pendidik PJOK"},
+      {id:8, niy:"201080", nama:"DADI SLAMET RIYADI", tmptLahir:"Serang", tglLahir:"1989-09-11", alamat:"Taman Mutiara Indah 1 Blok G1 Kaligandu", noHp:"+6281806239488", email:"dadi@mahadsyafii.sch.id", jabatan:"Staf Sarpras"},
+      {id:9, niy:"181044", nama:"DANI MARIYADI", tmptLahir:"Serang", tglLahir:"1987-05-22", alamat:"Komp. Bukit Permai Blok C Kota Serang", noHp:"+6283818431777", email:"dani@mahadsyafii.sch.id", jabatan:"Staf Keuangan"},
+      {id:10, niy:"201082", nama:"Drs. AHMAD TO'AT, MA.", tmptLahir:"Serang", tglLahir:"1965-08-15", alamat:"Kp. Karang Anyar Singamerta Ciruas", noHp:"+6281323358776", email:"toat@mahadsyafii.sch.id", jabatan:"Dewan Asatidzah"}
+    ];
+
+    const initialAlumni = [
+      {id:1, nisn:"00543211", nama:"Muhammad Ihsan", program:"MTTQ (SMA)", tahunLulus:"2024", hafalan:"30 Juz Mutqin", status:"Kuliah Universitas Islam Madinah", kontak:"081377889901"},
+      {id:2, nisn:"00543212", nama:"Farhan Dhiyaulhaq", program:"MTTQ (SMA)", tahunLulus:"2025", hafalan:"26 Juz", status:"Kuliah LIPIA Jakarta", kontak:"081377889902"},
+      {id:3, nisn:"00543213", nama:"Zaidan Al-Ayyubi", program:"MTTQ (SMA)", tahunLulus:"2025", hafalan:"30 Juz", status:"Kuliah Ma'had Aly Ar-Rayah", kontak:"081377889903"}
+    ];
+
+    // Persistensi Data LocalStorage
+    let dbSantri = JSON.parse(localStorage.getItem('mias_v2_santri')) || initialSantri;
+    let dbPegawai = JSON.parse(localStorage.getItem('mias_v2_pegawai')) || initialPegawai;
+    let dbAlumni = JSON.parse(localStorage.getItem('mias_v2_alumni')) || initialAlumni;
+
+    function saveDB() {
+      localStorage.setItem('mias_v2_santri', JSON.stringify(dbSantri));
+      localStorage.setItem('mias_v2_pegawai', JSON.stringify(dbPegawai));
+      localStorage.setItem('mias_v2_alumni', JSON.stringify(dbAlumni));
+    }
+
+    // STATE LOGIN & ROLE
+    let userRole = null; // 'tu' atau 'guru'
+    let currentNav = 'santri';
+    let currentParam = 'KELAS 1A MMTQ';
+
+    // AUTENTIKASI MULTI-ROLE
+    function handleLogin(e) {
+      e.preventDefault();
+      const u = document.getElementById('loginUsername').value.trim();
+      const p = document.getElementById('loginPassword').value.trim();
+      const alertBox = document.getElementById('loginAlert');
+
+      // Validasi Kredensial Khusus
+      if (u === 'admin_ardianto' && p === 'ardianto2026') {
+        userRole = 'tu';
+        sessionStorage.setItem('mias_role', 'tu');
+        sessionStorage.setItem('mias_user', 'Ardianto, S.Kom.');
+        startApp();
+      } else if (u === 'guru_mias' && p === 'syafii2026') {
+        userRole = 'guru';
+        sessionStorage.setItem('mias_role', 'guru');
+        sessionStorage.setItem('mias_user', 'Dewan Guru & Staf');
+        startApp();
+      } else {
+        alertBox.innerText = 'Username atau Kata Sandi salah! Periksa panduan akun di bawah.';
+        alertBox.style.display = 'block';
+      }
+    }
+
+    function checkSession() {
+      const savedRole = sessionStorage.getItem('mias_role');
+      if (savedRole) {
+        userRole = savedRole;
+        startApp();
+      }
+    }
+
+    function startApp() {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('appWrapper').style.display = 'flex';
+
+      const roleBadge = document.getElementById('currentRoleBadge');
+      const roleName = document.getElementById('currentUserName');
+      const btnAdd = document.getElementById('btnAddNew');
+
+      if (userRole === 'tu') {
+        roleName.innerText = sessionStorage.getItem('mias_user') || 'Ardianto, S.Kom.';
+        roleBadge.className = 'badge-role role-tu';
+        roleBadge.innerText = 'Tata Usaha (Admin - CRUD)';
+        btnAdd.style.display = 'inline-flex';
+      } else {
+        roleName.innerText = 'Ustadz / Pegawai';
+        roleBadge.className = 'badge-role role-guru';
+        roleBadge.innerText = 'Guru / Pegawai (Read-Only)';
+        btnAdd.style.display = 'none';
+      }
+
+      renderTable();
+    }
+
+    function logout() {
+      sessionStorage.clear();
+      location.reload();
+    }
+
+    // NAVIGASI
+    function navigate(view, param = null) {
+      currentNav = view;
+      currentParam = param;
+
+      document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+
+      if (view === 'santri') {
+        document.getElementById('viewHeaderTitle').innerText = 'Data Santri: ' + param;
+        document.getElementById('viewHeaderSub').innerText = 'Rombongan Belajar Ma\'had Imam Syafi\'i';
+      } else if (view === 'pegawai') {
+        document.getElementById('viewHeaderTitle').innerText = 'Data Asatidzah & Tenaga Pendidik';
+        document.getElementById('viewHeaderSub').innerText = 'Yayasan Mutiara Ilmu & Amal Serang';
+      } else if (view === 'alumni') {
+        document.getElementById('viewHeaderTitle').innerText = 'Rekapitulasi Alumni Pesantren';
+        document.getElementById('viewHeaderSub').innerText = 'Data Lulusan Santri MMTQ & MTTQ';
+      }
+
+      document.getElementById('tableFilter').value = '';
+      renderTable();
+    }
+
+    // RENDER TABEL
+    function renderTable() {
+      const th = document.getElementById('tblHead');
+      const tb = document.getElementById('tblBody');
+      const q = document.getElementById('tableFilter').value.toLowerCase();
+      tb.innerHTML = '';
+
+      const isTU = userRole === 'tu';
+
+      if (currentNav === 'santri') {
+        th.innerHTML = `
+          <tr>
+            <th width="35">NO</th>
+            <th>NIS</th>
+            <th>NAMA LENGKAP SANTRI</th>
+            <th>NISN</th>
+            <th>NIK</th>
+            <th>TTL</th>
+            <th>ALAMAT LENGKAP</th>
+            <th>NO. HP/WA</th>
+            <th>EMAIL</th>
+            ${isTU ? '<th width="80">AKSI</th>' : ''}
+          </tr>
+        `;
+
+        const rows = dbSantri.filter(s => s.kelas === currentParam && Object.values(s).some(v => String(v).toLowerCase().includes(q)));
+        if (rows.length === 0) {
+          tb.innerHTML = `<tr><td colspan="${isTU ? 10 : 9}" style="text-align: center; padding: 20px; color: var(--muted);">Data tidak ditemukan.</td></tr>`;
+          return;
+        }
+
+        rows.forEach((s, idx) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${idx + 1}</td>
+            <td><strong>${s.nis}</strong></td>
+            <td><strong>${s.nama}</strong></td>
+            <td>${s.nisn}</td>
+            <td>${s.nik}</td>
+            <td>${s.tmptLahir}, ${s.tglLahir}</td>
+            <td>${s.alamat}</td>
+            <td>${s.noHp}</td>
+            <td>${s.email}</td>
+            ${isTU ? `
+              <td>
+                <button class="btn-action-sm btn-edit" onclick="openModalEdit(${s.id})"><i class="fa-solid fa-pen"></i></button>
+                <button class="btn-action-sm btn-del" onclick="deleteEntry(${s.id})"><i class="fa-solid fa-trash"></i></button>
+              </td>
+            ` : ''}
+          `;
+          tb.appendChild(tr);
+        });
+
+      } else if (currentNav === 'pegawai') {
+        th.innerHTML = `
+          <tr>
+            <th width="35">NO</th>
+            <th>NIY</th>
+            <th>NAMA ASATIDZAH / PEGAWAI</th>
+            <th>JABATAN / UNIT</th>
+            <th>TTL</th>
+            <th>ALAMAT</th>
+            <th>NO. HANDPHONE</th>
+            <th>EMAIL</th>
+            ${isTU ? '<th width="80">AKSI</th>' : ''}
+          </tr>
+        `;
+
+        const rows = dbPegawai.filter(p => Object.values(p).some(v => String(v).toLowerCase().includes(q)));
+        if (rows.length === 0) {
+          tb.innerHTML = `<tr><td colspan="${isTU ? 9 : 8}" style="text-align: center; padding: 20px; color: var(--muted);">Data tidak ditemukan.</td></tr>`;
+          return;
+        }
+
+        rows.forEach((p, idx) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${idx + 1}</td>
+            <td><strong>${p.niy}</strong></td>
+            <td><strong>${p.nama}</strong></td>
+            <td>${p.jabatan || 'Guru / Staf'}</td>
+            <td>${p.tmptLahir}, ${p.tglLahir}</td>
+            <td>${p.alamat}</td>
+            <td>${p.noHp}</td>
+            <td>${p.email}</td>
+            ${isTU ? `
+              <td>
+                <button class="btn-action-sm btn-edit" onclick="openModalEdit(${p.id})"><i class="fa-solid fa-pen"></i></button>
+                <button class="btn-action-sm btn-del" onclick="deleteEntry(${p.id})"><i class="fa-solid fa-trash"></i></button>
+              </td>
+            ` : ''}
+          `;
+          tb.appendChild(tr);
+        });
+
+      } else if (currentNav === 'alumni') {
+        th.innerHTML = `
+          <tr>
+            <th width="35">NO</th>
+            <th>NISN</th>
+            <th>NAMA ALUMNI</th>
+            <th>PROGRAM</th>
+            <th>TAHUN LULUS</th>
+            <th>HAFALAN</th>
+            <th>KAMPUS / KEGIATAN</th>
+            <th>KONTAK</th>
+            ${isTU ? '<th width="80">AKSI</th>' : ''}
+          </tr>
+        `;
+
+        const rows = dbAlumni.filter(a => Object.values(a).some(v => String(v).toLowerCase().includes(q)));
+        if (rows.length === 0) {
+          tb.innerHTML = `<tr><td colspan="${isTU ? 9 : 8}" style="text-align: center; padding: 20px; color: var(--muted);">Data tidak ditemukan.</td></tr>`;
+          return;
+        }
+
+        rows.forEach((a, idx) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${idx + 1}</td>
+            <td><strong>${a.nisn}</strong></td>
+            <td><strong>${a.nama}</strong></td>
+            <td>${a.program}</td>
+            <td>${a.tahunLulus}</td>
+            <td><span style="background:#e0f2fe; color:#0369a1; padding:2px 6px; border-radius:4px; font-weight:600;">${a.hafalan}</span></td>
+            <td>${a.status}</td>
+            <td>${a.kontak}</td>
+            ${isTU ? `
+              <td>
+                <button class="btn-action-sm btn-edit" onclick="openModalEdit(${a.id})"><i class="fa-solid fa-pen"></i></button>
+                <button class="btn-action-sm btn-del" onclick="deleteEntry(${a.id})"><i class="fa-solid fa-trash"></i></button>
+              </td>
+            ` : ''}
+          `;
+          tb.appendChild(tr);
+        });
+      }
+    }
+
+    function filterTable() { renderTable(); }
+
+    // MODAL INPUT (KHUSUS TU ARDIANTO)
+    function openModalAdd() {
+      if (userRole !== 'tu') return;
+      document.getElementById('entryIndex').value = '';
+      const box = document.getElementById('modalInputFields');
+      const head = document.getElementById('modalHeaderLabel');
+
+      if (currentNav === 'santri') {
+        head.innerText = `Tambah Santri Baru (${currentParam})`;
+        box.innerHTML = `
+          <div class="form-item"><label>NIS</label><input type="text" id="f_nis" required></div>
+          <div class="form-item"><label>Nama Santri</label><input type="text" id="f_nama" required></div>
+          <div class="form-item"><label>NISN</label><input type="text" id="f_nisn" required></div>
+          <div class="form-item"><label>NIK</label><input type="text" id="f_nik"></div>
+          <div class="form-item"><label>Tempat Lahir</label><input type="text" id="f_tmpt"></div>
+          <div class="form-item"><label>Tanggal Lahir</label><input type="date" id="f_tgl"></div>
+          <div class="form-item"><label>No. HP / WA</label><input type="text" id="f_hp"></div>
+          <div class="form-item"><label>Email</label><input type="email" id="f_email"></div>
+          <div class="form-item full"><label>Alamat Lengkap</label><textarea id="f_alamat" rows="2"></textarea></div>
+        `;
+      } else if (currentNav === 'pegawai') {
+        head.innerText = 'Tambah Asatidzah / Pegawai';
+        box.innerHTML = `
+          <div class="form-item"><label>NIY</label><input type="text" id="f_niy" required></div>
+          <div class="form-item"><label>Nama Lengkap & Gelar</label><input type="text" id="f_nama" required></div>
+          <div class="form-item"><label>Jabatan</label><input type="text" id="f_jabatan"></div>
+          <div class="form-item"><label>Tempat Lahir</label><input type="text" id="f_tmpt"></div>
+          <div class="form-item"><label>Tanggal Lahir</label><input type="date" id="f_tgl"></div>
+          <div class="form-item"><label>No. HP / WA</label><input type="text" id="f_hp"></div>
+          <div class="form-item full"><label>Email</label><input type="email" id="f_email"></div>
+          <div class="form-item full"><label>Alamat Tinggal</label><textarea id="f_alamat" rows="2"></textarea></div>
+        `;
+      } else if (currentNav === 'alumni') {
+        head.innerText = 'Tambah Data Alumni';
+        box.innerHTML = `
+          <div class="form-item"><label>NISN</label><input type="text" id="f_nisn" required></div>
+          <div class="form-item"><label>Nama Alumni</label><input type="text" id="f_nama" required></div>
+          <div class="form-item"><label>Program</label><input type="text" id="f_program" value="MTTQ (SMA)"></div>
+          <div class="form-item"><label>Tahun Lulus</label><input type="text" id="f_lulus" value="2026"></div>
+          <div class="form-item"><label>Hafalan</label><input type="text" id="f_hafalan" placeholder="30 Juz"></div>
+          <div class="form-item"><label>No Kontak</label><input type="text" id="f_hp"></div>
+          <div class="form-item full"><label>Status / Lanjutan Kuliah</label><input type="text" id="f_status"></div>
+        `;
+      }
+      document.getElementById('crudModal').style.display = 'flex';
+    }
+
+    function openModalEdit(id) {
+      if (userRole !== 'tu') return;
+      openModalAdd();
+      document.getElementById('entryIndex').value = id;
+      document.getElementById('modalHeaderLabel').innerText = 'Perbarui Data';
+
+      if (currentNav === 'santri') {
+        const item = dbSantri.find(x => x.id === id);
+        if (!item) return;
+        document.getElementById('f_nis').value = item.nis;
+        document.getElementById('f_nama').value = item.nama;
+        document.getElementById('f_nisn').value = item.nisn;
+        document.getElementById('f_nik').value = item.nik;
+        document.getElementById('f_tmpt').value = item.tmptLahir;
+        document.getElementById('f_tgl').value = item.tglLahir;
+        document.getElementById('f_hp').value = item.noHp;
+        document.getElementById('f_email').value = item.email;
+        document.getElementById('f_alamat').value = item.alamat;
+      } else if (currentNav === 'pegawai') {
+        const item = dbPegawai.find(x => x.id === id);
+        if (!item) return;
+        document.getElementById('f_niy').value = item.niy;
+        document.getElementById('f_nama').value = item.nama;
+        document.getElementById('f_jabatan').value = item.jabatan || '';
+        document.getElementById('f_tmpt').value = item.tmptLahir;
+        document.getElementById('f_tgl').value = item.tglLahir;
+        document.getElementById('f_hp').value = item.noHp;
+        document.getElementById('f_email').value = item.email;
+        document.getElementById('f_alamat').value = item.alamat;
+      } else if (currentNav === 'alumni') {
+        const item = dbAlumni.find(x => x.id === id);
+        if (!item) return;
+        document.getElementById('f_nisn').value = item.nisn;
+        document.getElementById('f_nama').value = item.nama;
+        document.getElementById('f_program').value = item.program;
+        document.getElementById('f_lulus').value = item.tahunLulus;
+        document.getElementById('f_hafalan').value = item.hafalan;
+        document.getElementById('f_hp').value = item.kontak;
+        document.getElementById('f_status').value = item.status;
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('crudModal').style.display = 'none';
+    }
+
+    function saveFormData(e) {
+      e.preventDefault();
+      if (userRole !== 'tu') return;
+      const editId = document.getElementById('entryIndex').value;
+
+      if (currentNav === 'santri') {
+        const obj = {
+          nis: document.getElementById('f_nis').value,
+          nama: document.getElementById('f_nama').value,
+          nisn: document.getElementById('f_nisn').value,
+          nik: document.getElementById('f_nik').value,
+          tmptLahir: document.getElementById('f_tmpt').value,
+          tglLahir: document.getElementById('f_tgl').value,
+          noHp: document.getElementById('f_hp').value,
+          email: document.getElementById('f_email').value,
+          alamat: document.getElementById('f_alamat').value,
+          kelas: currentParam
+        };
+
+        if (editId) {
+          const idx = dbSantri.findIndex(x => x.id === parseInt(editId));
+          if (idx !== -1) dbSantri[idx] = { ...dbSantri[idx], ...obj };
+        } else {
+          dbSantri.push({ id: Date.now(), ...obj });
+        }
+      } else if (currentNav === 'pegawai') {
+        const obj = {
+          niy: document.getElementById('f_niy').value,
+          nama: document.getElementById('f_nama').value,
+          jabatan: document.getElementById('f_jabatan').value,
+          tmptLahir: document.getElementById('f_tmpt').value,
+          tglLahir: document.getElementById('f_tgl').value,
+          noHp: document.getElementById('f_hp').value,
+          email: document.getElementById('f_email').value,
+          alamat: document.getElementById('f_alamat').value
+        };
+
+        if (editId) {
+          const idx = dbPegawai.findIndex(x => x.id === parseInt(editId));
+          if (idx !== -1) dbPegawai[idx] = { ...dbPegawai[idx], ...obj };
+        } else {
+          dbPegawai.push({ id: Date.now(), ...obj });
+        }
+      } else if (currentNav === 'alumni') {
+        const obj = {
+          nisn: document.getElementById('f_nisn').value,
+          nama: document.getElementById('f_nama').value,
+          program: document.getElementById('f_program').value,
+          tahunLulus: document.getElementById('f_lulus').value,
+          hafalan: document.getElementById('f_hafalan').value,
+          kontak: document.getElementById('f_hp').value,
+          status: document.getElementById('f_status').value
+        };
+
+        if (editId) {
+          const idx = dbAlumni.findIndex(x => x.id === parseInt(editId));
+          if (idx !== -1) dbAlumni[idx] = { ...dbAlumni[idx], ...obj };
+        } else {
+          dbAlumni.push({ id: Date.now(), ...obj });
+        }
+      }
+
+      saveDB();
+      closeModal();
+      renderTable();
+    }
+
+    function deleteEntry(id) {
+      if (userRole !== 'tu') return;
+      if (confirm('Konfirmasi: Hapus data ini secara permanen dari sistem?')) {
+        if (currentNav === 'santri') dbSantri = dbSantri.filter(x => x.id !== id);
+        else if (currentNav === 'pegawai') dbPegawai = dbPegawai.filter(x => x.id !== id);
+        else if (currentNav === 'alumni') dbAlumni = dbAlumni.filter(x => x.id !== id);
+        saveDB();
+        renderTable();
+      }
+    }
+
+    // 4. EKSPOR PDF RESMI & RAPIH (Lengkap dengan Kop Surat dan Tabel)
+    function generateFormalPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF('l', 'mm', 'a4'); // Landscape A4
+
+      let title = '';
+      let subTitle = '';
+      let headers = [];
+      let bodyData = [];
+
+      if (currentNav === 'santri') {
+        title = `DAFTAR SANTRI ${currentParam}`;
+        subTitle = `MA'HAD IMAM SYAFI'I SERANG - TAHUN AJARAN 2026/2027`;
+        headers = [['NO', 'NIS', 'NAMA LENGKAP SANTRI', 'NISN', 'TTL', 'ALAMAT TINGGAL', 'NO. WHATSAPP']];
+        const dataList = dbSantri.filter(x => x.kelas === currentParam);
+        bodyData = dataList.map((item, idx) => [
+          idx + 1,
+          item.nis,
+          item.nama,
+          item.nisn,
+          `${item.tmptLahir}, ${item.tglLahir}`,
+          item.alamat,
+          item.noHp
+        ]);
+      } else if (currentNav === 'pegawai') {
+        title = `DAFTAR ASATIDZAH DAN TENAGA KEPENDIDIKAN`;
+        subTitle = `YAYASAN MUTIARA ILMU DAN AMAL - MA'HAD IMAM SYAFI'I`;
+        headers = [['NO', 'NIY', 'NAMA LENGKAP & GELAR', 'JABATAN', 'TTL', 'ALAMAT', 'NO. HP']];
+        bodyData = dbPegawai.map((item, idx) => [
+          idx + 1,
+          item.niy,
+          item.nama,
+          item.jabatan || 'Pendidik / Staf',
+          `${item.tmptLahir}, ${item.tglLahir}`,
+          item.alamat,
+          item.noHp
+        ]);
+      } else if (currentNav === 'alumni') {
+        title = `BUKU INDUK ALUMNI MA'HAD IMAM SYAFI'I`;
+        subTitle = `DATA LULUSAN & CAPAIAN SANTRI`;
+        headers = [['NO', 'NISN', 'NAMA ALUMNI', 'PROGRAM', 'TAHUN LULUS', 'HAFALAN', 'KAMPUS / KEGIATAN']];
+        bodyData = dbAlumni.map((item, idx) => [
+          idx + 1,
+          item.nisn,
+          item.nama,
+          item.program,
+          item.tahunLulus,
+          item.hafalan,
+          item.status
+        ]);
+      }
+
+      // KOP SURAT FORMAL
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.setTextColor(13, 92, 58);
+      doc.text("YAYASAN MUTIARA ILMU DAN AMAL SERANG", 148, 14, { align: "center" });
+
+      doc.setFontSize(16);
+      doc.setTextColor(15, 23, 42);
+      doc.text("MA'HAD IMAM SYAFI'I KOTA SERANG", 148, 21, { align: "center" });
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(71, 85, 105);
+      doc.text("Jl. Dishub/Damkar KM. 02, Kp. Panggang RT.03/RW.07 Kel. Penancangan, Kec. Cipocok Jaya, Kota Serang - Banten", 148, 27, { align: "center" });
+      doc.text("Telp / WA: 0877-7171-4917 | Email: info@mahadsyafii.sch.id | Website: mahad-imam-syafii.vercel.app", 148, 31, { align: "center" });
+
+      // Garis Kop Surat Ganda
+      doc.setDrawColor(13, 92, 58);
+      doc.setLineWidth(0.8);
+      doc.line(14, 34, 283, 34);
+      doc.setLineWidth(0.2);
+      doc.line(14, 35.5, 283, 35.5);
+
+      // Judul Laporan
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(11);
+      doc.setTextColor(15, 23, 42);
+      doc.text(title, 148, 42, { align: "center" });
+
+      doc.setFont('helvetica', 'italic');
+      doc.setFontSize(9);
+      doc.setTextColor(100, 116, 139);
+      doc.text(subTitle, 148, 46, { align: "center" });
+
+      // Generator Tabel Otomatis
+      doc.autoTable({
+        startY: 50,
+        head: headers,
+        body: bodyData,
+        theme: 'grid',
+        headStyles: {
+          fillColor: [13, 92, 58],
+          textColor: [255, 255, 255],
+          fontStyle: 'bold',
+          halign: 'center',
+          fontSize: 8.5
+        },
+        styles: {
+          fontSize: 8,
+          cellPadding: 2.5,
+          valign: 'middle'
+        },
+        columnStyles: {
+          0: { halign: 'center', cellWidth: 10 },
+          1: { halign: 'center', cellWidth: 22 },
+          3: { halign: 'center', cellWidth: 24 }
+        },
+        alternateRowStyles: {
+          fillColor: [248, 250, 252]
+        },
+        margin: { left: 14, right: 14 }
+      });
+
+      // Tanda Tangan Pengesahan di Akhir
+      const finalY = doc.lastAutoTable.finalY + 8;
+      if (finalY < 170) {
+        const today = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor(30, 41, 59);
+
+        doc.text(`Kota Serang, ${today}`, 240, finalY, { align: 'center' });
+        doc.text(`Mengetahui / Pengelola Data`, 240, finalY + 5, { align: 'center' });
+
+        doc.setFont('helvetica', 'bold');
+        doc.text("Ardianto, S.Kom.", 240, finalY + 22, { align: 'center' });
+        doc.setFont('helvetica', 'normal');
+        doc.text("Kepala Tata Usaha", 240, finalY + 26, { align: 'center' });
+      }
+
+      doc.save(`${title.replace(/ /g, '_')}.pdf`);
+    }
+
+    // 5. EKSPOR CSV
+    function exportCSV() {
+      let data = [];
+      let fname = 'data.csv';
+
+      if (currentNav === 'santri') {
+        data = dbSantri.filter(x => x.kelas === currentParam);
+        fname = `Data_${currentParam.replace(/ /g, '_')}.csv`;
+      } else if (currentNav === 'pegawai') {
+        data = dbPegawai;
+        fname = 'Data_Pegawai_Asatidzah.csv';
+      } else if (currentNav === 'alumni') {
+        data = dbAlumni;
+        fname = 'Data_Alumni.csv';
+      }
+
+      if (data.length === 0) return alert('Tidak ada data untuk diunduh.');
+
+      const keys = Object.keys(data[0]).filter(k => k !== 'id');
+      const csv = [keys.join(',')];
+      data.forEach(r => csv.push(keys.map(k => `"${String(r[k] || '').replace(/"/g, '""')}"`).join(',')));
+
+      const blob = new Blob(["\ufeff" + csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = fname;
+      a.click();
+    }
+
+    // Inisialisasi awal
+    window.onload = checkSession;
+  </script>
+</body>
+</html>
